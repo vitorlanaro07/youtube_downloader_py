@@ -1,79 +1,79 @@
 import PySimpleGUI as sg
 from modulos import web_scraping_youtube_link_and_label as youtube_acess
-from PIL import Image
-from io import BytesIO
-import requests
 
-def frame_img(x):
-    return sg.Frame("", [[sg.Image(transform_img(),key=f"-IMG-{x}")]], pad=(5, 3), border_width=0)
 
-def frame_txt(x):
-    return sg.Frame("", [[sg.Text("Titulo",key=f"-TEXT-{x}")],
-                          [sg.Button("Baixar")]],pad=(5, 3),border_width=0)
+
+def frame_img(indice):
+    return sg.Frame("", [[sg.Image(youtube_acess.transform_img(),key=f"-IMG-{indice}")]], pad=(5, 3), border_width=0)
+
+def frame_txt(indice):
+    return sg.Frame("", [[sg.Text("Video",key=f"-TEXT-{indice}")],
+                          [sg.Button("Baixar")]],pad=(5, 3),border_width=0, expand_x=True)
+
 def main():
-
     font = ('Courier New', 11)
     sg.theme('DarkBlue3')
     sg.set_options(font=font)
+    tamanho_resultado = 0
+    colunas_criadas = 0
 
     column_one = [[sg.Text("Dowloader Youtube")]]
     column_two = [[sg.Input(),sg.Button("Search")]]
 
     layout_frame1 = [
-        [frame_img(0), frame_txt(0)],
+        [frame_img(colunas_criadas), frame_txt(colunas_criadas)],
     ]
 
 
     layout = [[sg.Column(column_one, vertical_alignment="center", justification="center")],
               [sg.Column(column_two, vertical_alignment="bottom", justification="center")],
               [sg.Text('RESULTADO',key="RES-", justification='center', background_color='#424f5e', expand_x=True,visible=False)],
-              [sg.Column(layout_frame1, scrollable=True, vertical_scroll_only=True, size=(800, 300*3), key='COLUMN')] #, visible=False
+              [sg.Column(layout_frame1, scrollable=True, vertical_scroll_only=True, size=(1000, 300*3), key='COLUMN', expand_x=True, visible=False)]
               ]
 
 
-    window = sg.Window("Downloader MP3 YOUTUBE", layout, finalize=True, size=(800,800), font=(50))
+    window = sg.Window("Downloader MP3 YOUTUBE", layout, finalize=True, size=(1000,600), font=(50), resizable=True)
 
 
     while True:
         event, values = window.read()
-        print(event, values)
 
         if event == sg.WINDOW_CLOSED:
             break
 
         if event == "Search":
-            # faço a requisição dos dados
             data = youtube_acess.get_data(values[0])
-            x=0
-            for item in data:
-                img = transform_img(item['thumb'])
-                window[f"-IMG-{x}"].update(img)
-                window[f"-TEXT-{x}"].update(item["title"])
-                x+=1
-                layout_frame = [[frame_img(x), frame_txt(x)]]
-                window.extend_layout(window['COLUMN'], layout_frame)
-            window.visibility_changed()
-            window['COLUMN'].contents_changed()
+            tamanho_resultado = len(data)
+            print(f"Foram encontrados {tamanho_resultado} resultados")
+            colunas_criadas = criar_colunas(window, tamanho_resultado, colunas_criadas)
+            atualiza_tela(data, window, tamanho_resultado)
 
 
     window.close()
 
 
+def atualiza_tela(data, window, tamanho_resultado):
+    for index in range(tamanho_resultado):
+        print(index, tamanho_resultado)
+        window[f"-IMG-{index}"].update(data[index]["thumb"])
+    for index in range(tamanho_resultado):
+        window[f"-TEXT-{index}"].update(data[index]["title"])
+    window.visibility_changed()
+    window['COLUMN'].contents_changed()
+    window['COLUMN'].update(visible=True)
 
-def transform_img(url=None):
-    if url == None:
-        url = "https://img.youtube.com/vi"
+
+
+def criar_colunas(window, tamanho_resultado, colunas_criadas):
+    if tamanho_resultado > colunas_criadas:
+        for index in range(colunas_criadas, tamanho_resultado):
+            print(f"Criou {index} coluna(s)")
+            layout = [[frame_img(index), frame_txt(index)]]
+            window.extend_layout(window["COLUMN"], layout)
     else:
-        pass
+        print("As colunas que estão criadas, já são suficiente")
 
-    response = requests.get(url, stream=True)
-    image = response.content
-    pil_image = Image.open(BytesIO(image)).resize(size=(200,150))
-    png_bio = BytesIO()
-    pil_image.save(png_bio, format="PNG")
-    png_data = png_bio.getvalue()
-
-    return (png_data)
+    return tamanho_resultado
 
 
 if __name__ == "__main__":
