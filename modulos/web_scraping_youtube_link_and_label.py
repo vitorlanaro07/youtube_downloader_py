@@ -26,14 +26,14 @@ def request_pesq(data):
     return soup
 
 
-def transform_img(url=None):
+def transform_img(url=None, x=200, y=150):
     if url == None:
         url = "https://img.youtube.com/vi"
     else:
         pass
     response = requests.get(url, stream=True)
     image = response.content
-    pil_image = Image.open(BytesIO(image)).resize(size=(200,150))
+    pil_image = Image.open(BytesIO(image)).resize(size=(x,y))
     png_bio = BytesIO()
     pil_image.save(png_bio, format="PNG")
     png_data = png_bio.getvalue()
