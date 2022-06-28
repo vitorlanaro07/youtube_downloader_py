@@ -8,24 +8,22 @@ def main():
     font = ('Courier New', 11)
     sg.theme('DarkBlue3')
     sg.set_options(font=font)
-    colunas_criadas = 1
+    colunas_criadas = 30
     tamanho_resultado = 0
 
     column = [[sg.Text("Downloader Youtube",justification="Center")],
               [sg.Input(),sg.Button("Search")]]
 
-    layout_frame1 = [
-        [frame_img(0), frame_txt(0)],
+    print("Criando Colunas...")
+    layout_cre = [
+        [frame_img(x), frame_txt(x)] for x in range(0,30)
     ]
 
-
-    layout = [[sg.Image(youtube_acess.transform_img(url_logo, 300, 150), visible=False, key="LOGO_PEQ"),
-               sg.Column(column, vertical_alignment="center", justification="center")],
-              #[sg.Column(column_two, vertical_alignment="bottom", justification="center")],
-              [sg.Text('RESULTADO',key="RES", justification='center',background_color='#424f5e', expand_x=True,visible=False),sg.FileBrowse(visible=False, key="DIR")],
-              [sg.Image(youtube_acess.transform_img(url_logo, 1000, 400), visible=True, key="LOGO"),sg.Column(layout_frame1, scrollable=True, vertical_scroll_only=True, size=(1000, 300*3), key='COLUMN', expand_x=True,visible=False)]
+    layout = [[sg.Image(youtube_acess.transform_img(url_logo, 300, 150), visible=False, key="LOGO_PEQ"), sg.Column(column, vertical_alignment="center", justification="center")],
+              [sg.Text(key="RES", justification='center',background_color='#424f5e', expand_x=True,visible=False)],
+              [sg.Image(youtube_acess.transform_img(url_logo, 1000, 400), visible=True, key="LOGO"),
+               [sg.Column(layout_cre, key=f'COLUMN',visible=False,  scrollable=True, vertical_scroll_only=True, size=(1200, 300*3))]] #, expand_x=True,visible=False
               ]
-
 
     window = sg.Window("Downloader MP3 YOUTUBE", layout, finalize=True, size=(1000,600), font=(50), resizable=True)
 
@@ -38,10 +36,9 @@ def main():
 
         if event == "Search":
             data = youtube_acess.get_data(values[0])
+            print("Requisição feita!")
             tamanho_resultado = len(data)
-            print(f"Foram encontrados {tamanho_resultado} resultados")
-            colunas_criadas = criar_colunas(window, tamanho_resultado, colunas_criadas)
-            atualiza_tela(data, window, tamanho_resultado)
+            atualiza_tela(data, window, tamanho_resultado, colunas_criadas)
 
 
         if event == f"Baixar":
@@ -57,43 +54,46 @@ def main():
     window.close()
 
 
-def atualiza_tela(data, window, tamanho_resultado):
-    for index in range(tamanho_resultado):
-        print(index, tamanho_resultado)
+
+def atualiza_tela(data, window, tamanho_resultado, tamanho_colunas):
+    for index in range(0,tamanho_resultado):
         window[f"-IMG-{index}"].update(data[index]["thumb"])
-    for index in range(tamanho_resultado):
+
+    for index in range(0,tamanho_resultado):
         window[f"-TEXT-{index}"].update(data[index]["title"])
-    for index in range(tamanho_resultado):
-        window[f"-LINK-{index}"].update(data[index]["link"])
+        window[f"-LINK-{index}"].update(f"Link: {data[index]['link']}")
+        window[f"-TIME-{index}"].update(f"Duração: {data[index]['duration']}")
+    #for index in range(0,tamanho_resultado):
+
+
+
+    for index in range(0, tamanho_resultado):
+        window[f"FRAME-IMG{index}"].update(visible=True)
+        window[f"FRAME-TXT{index}"].update(visible=True)
+
+    for index in range(tamanho_resultado, tamanho_colunas):
+        window[f"FRAME-IMG{index}"].update(visible=False)
+        window[f"FRAME-TXT{index}"].update(visible=False)
+
     window.visibility_changed()
-    window['COLUMN'].contents_changed()
+    window[f'COLUMN'].contents_changed()
+    window[f'COLUMN'].update(visible=True)
     window['LOGO'].update(visible=False)
     window['LOGO_PEQ'].update(visible=True)
-    window['RES'].update(visible=True)
-    window['COLUMN'].update(visible=True)
+    window['RES'].update(f"RESULTADO: {tamanho_resultado}",visible=True)
 
 
 
-def criar_colunas(window, tamanho_resultado, colunas_criadas):
-    if tamanho_resultado > colunas_criadas:
-        for index in range(colunas_criadas, tamanho_resultado):
-            print(f"Criou {index} coluna(s)")
-            layout = [[frame_img(index), frame_txt(index)]]
-            window.extend_layout(window["COLUMN"], layout)
-    else:
-        print("As colunas que estão criadas, já são suficiente")
 
-    return tamanho_resultado
+def frame_img(index):
+    return sg.Frame("", [[sg.Image(youtube_acess.transform_img(),key=f"-IMG-{index}")]], key=f"FRAME-IMG{index}", pad=(5, 3), border_width=0, visible=False)
 
 
-def frame_img(indice):
-    return sg.Frame("", [[sg.Image(youtube_acess.transform_img(),key=f"-IMG-{indice}")]], pad=(5, 3), border_width=0)
-
-
-def frame_txt(indice):
-    return sg.Frame("", [[sg.Text("Video",key=f"-TEXT-{indice}")],
-                         [sg.Text("Link:", key=f"-LINK-{indice}")],
-                          [sg.Button("Baixar")]],pad=(5, 3),border_width=0, expand_x=True)
+def frame_txt(index):
+    return sg.Frame("", [[sg.Text("",key=f"-TEXT-{index}")],
+                         [sg.Text("",key=f"-LINK-{index}")],
+                         [sg.Text("",key=f"-TIME-{index}")],
+                          [sg.Button("Baixar")]], key=f"FRAME-TXT{index}",pad=(5, 3),border_width=0, expand_x=True, visible= False)
 
 
 if __name__ == "__main__":

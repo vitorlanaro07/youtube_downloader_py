@@ -1,6 +1,10 @@
-from pytube import YouTube
+from pytube import YouTube, Search
 import os
 import datetime
+
+# def pesquisar(pesquisa):
+#     pes = Search(pesquisa).results
+#     print(len(pes))
 
 def baixar(url):
 
@@ -9,10 +13,10 @@ def baixar(url):
 
     # extract only audio
     video = yt.streams.filter(only_audio=True).first()
-    print(yt.thumbnail_url, str(datetime.timedelta(seconds=yt.length)), yt.author, "{:d}".format(yt.views))
+    print(yt.thumbnail_url, yt.author, "{:d}".format(yt.views))
     # check for destination to save file
 
-    destination = os.getcwd()
+    destination = os.getcwd() + "/musicas"
 
     # download the file
     out_file = video.download(output_path=destination)
@@ -26,4 +30,4 @@ def baixar(url):
     print(yt.title + " has been successfully downloaded.")
 
 if __name__ == "__main__":
-    baixar("https://www.youtube.com/watch?v=5GJWxDKyk3A")
+   baixar("Japura")

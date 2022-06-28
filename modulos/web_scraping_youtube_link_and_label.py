@@ -1,30 +1,8 @@
-from requests_html import HTMLSession
-from bs4 import BeautifulSoup
 from io import BytesIO
 from PIL import Image
 import requests
-
-#Inico a sessão
-def init_sesion():
-    session = HTMLSession()
-    return session
-
-
-#Busco um vídeo no youtube
-def pesquisa(data):
-    url = f"https://www.youtube.com/results?search_query={data}"
-    return url
-
-
-#Request + Converte para HTML
-def request_pesq(data):
-    url = pesquisa(data)
-    session = init_sesion()
-    r = session.get(url)
-    r.html.render(sleep=1)
-    soup = BeautifulSoup(markup=r.html.html, features="html.parser")
-    return soup
-
+from pytube import YouTube, Search
+import datetime
 
 def transform_img(url=None, x=200, y=150):
     if url == None:
@@ -41,22 +19,29 @@ def transform_img(url=None, x=200, y=150):
     return (png_data)
 
 
-# Faz a filtragem do que está sendo buscado
-# guarda na lista e apresenta na tela
 def get_data(data):
+    is_a = what_is(data)
+    print("Fazendo Requisição a página!!")
     list = []
-    soup = request_pesq(data)
-    for video in soup.find_all(id=["href", "video-title", "text", "img", "thumbail", "dismissible", "contents", "primary"]):
-        try:
-            cod_vi = str(video.get("href")).replace("watch?v=","")
-            list.append({"title": video.get("title"), "link": str("https://www.youtube.com"+video.get("href")), "thumb": transform_img("https://img.youtube.com/vi"+cod_vi+"/mqdefault.jpg")}) #"label":video.get("aria-label")
-        except:
-            pass
+    if is_a == "Text":
+        yt = Search(data)
+        for v in yt.results:
+            list.append({"title": v.title, "link": v.watch_url, "duration": str(datetime.timedelta(seconds=v.length)),
+                         "thumb": transform_img(v.thumbnail_url)})  # "label":video.get("aria-label")
+    else:
+        yt = YouTube(data)
+        list.append({"title": yt.title, "link": data, "duration": str(datetime.timedelta(seconds=yt.length)),
+                     "thumb": transform_img(yt.thumbnail_url)})  # "label":video.get("aria-label")
 
     return list
 
 
+
+def what_is(data):
+    if not bool(data.find("https://")):
+        return "Link"
+    else:
+        return "Text"
+
 if __name__ == "__main__":
-    data = get_data("Billie Elish")
-    # for item in data:
-    #     print(item)
+    get_data("Billie Elish")
