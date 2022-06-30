@@ -9,7 +9,8 @@ def baixar(url,dir, tipo):
     inico = time.time()
     if tipo == ".m4a":
         arquivo = yt.streams.filter(only_audio=True).first().download(output_path=dir)
-        size = yt.streams.get_audio_only().filesize / 2653255
+        size = yt.streams.get_audio_only().filesize / 2654041
+        print(size)
     else:
         arquivo = yt.streams.get_highest_resolution().download(output_path=dir)
         size = yt.streams.get_highest_resolution().filesize / 1000000
@@ -17,6 +18,9 @@ def baixar(url,dir, tipo):
     fim = time.time()
 
     print("Tempo de download: {:.2f} segundos".format(fim - inico), "/ File size: {:.2f}MB".format(size))
+
+    # 182879557
+    # 68906078
 
     # save the file
     base, ext = os.path.splitext(arquivo)
