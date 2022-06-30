@@ -12,16 +12,16 @@ def main():
     tipo = ".m4a"
 
     window = janela_principal.janela_principal()
-    colunas_criadas = 20
+    colunas_criadas = 30
     tamanho_resultado = 0
 
     while True:
         event, values = window.read()
 
-        os.system('clear')
-
         if event == sg.WINDOW_CLOSED:
             break
+
+        os.system('clear')
 
         if event == "Search":
             data = search_audio_video.get_data(values[0])
@@ -50,7 +50,7 @@ def atualiza_tela(data, window, tamanho_resultado, tamanho_colunas):
         window[f"-TEXT-{index}"].update(data[index]["title"])
         window[f"-CANAL-{index}"].update(f"Canal: {data[index]['canal']}")
         window[f"-TIME-{index}"].update(f"Duração: {data[index]['duration']}")
-        window[f"-VIEWS-{index}"].update(f"Views: {data[index]['views']}")
+        window[f"-VIEWS-{index}"].update("Views: {:,}".format(data[index]['views']))
 
     for index in range(0, tamanho_resultado):
         window[f"FRAME-IMG{index}"].update(visible=True)
