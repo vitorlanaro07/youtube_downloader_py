@@ -3,6 +3,7 @@ import PySimpleGUI as sg
 import os
 
 
+
 url_logo = os.getcwd()+"/imagem/logo.png"
 
 

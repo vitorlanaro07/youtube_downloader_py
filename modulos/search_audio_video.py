@@ -90,6 +90,7 @@ def get_data(data):
     print("------------------------------------------------------------------")
     print(f"Foram encontados {len(list)} resultados")
     print("Tempo de pesquisa: : {:.2f} segundos".format(fim - inicio))
+
     return list
 
 def what_is(data):

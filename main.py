@@ -1,9 +1,9 @@
 import os
+import threading, queue
 import PySimpleGUI as sg
 from modulos import download_audio_video as audio_video
 from modulos import janela_principal, janela_opcoes
 from modulos import search_audio_video
-
 
 
 def main():
@@ -11,7 +11,9 @@ def main():
     dir = os.getcwd()
     tipo = ".m4a"
 
-    window = janela_principal.janela_principal()
+
+    window = janela_principal.janela_principal() #janela_principal.janela_principal()
+
     colunas_criadas = 30
     tamanho_resultado = 0
 
@@ -29,17 +31,16 @@ def main():
             atualiza_tela(data, window, tamanho_resultado, colunas_criadas)
 
         if event == f"Baixar":
-            audio_video.baixar(url=data[0]["link"], dir=dir, tipo=tipo)
+            threading.Thread(target=audio_video.baixar, args=[data[0]["link"], dir, tipo, ]).start()
 
         for index in range(0,tamanho_resultado):
             if event == f"Baixar{index}":
-                audio_video.baixar(url=data[index+1]["link"], dir=dir, tipo=tipo)
+                threading.Thread(target=audio_video.baixar, args=[data[index+1]["link"], dir, tipo, ]).start()
 
         if event == "OPT":
             tipo, dir = janela_opcoes.janela_opcoes()
 
     window.close()
-
 
 
 def atualiza_tela(data, window, tamanho_resultado, tamanho_colunas):
@@ -74,3 +75,5 @@ def atualiza_tela(data, window, tamanho_resultado, tamanho_colunas):
 
 if __name__ == "__main__":
     main()
+
+
