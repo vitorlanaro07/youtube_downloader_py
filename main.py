@@ -4,7 +4,7 @@ import PySimpleGUI as sg
 from modulos import download_audio_video as audio_video
 from modulos import janela_principal, janela_opcoes
 from modulos import search_audio_video
-
+from modulos.search_audio_video import lista
 
 def main():
     #default
@@ -26,6 +26,7 @@ def main():
         os.system('clear')
 
         if event == "Search":
+            search_audio_video.lista = []
             data = search_audio_video.get_data(values[0])
             tamanho_resultado = len(data)
             atualiza_tela(data, window, tamanho_resultado, colunas_criadas)

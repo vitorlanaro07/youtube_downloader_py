@@ -6,6 +6,14 @@ from PIL import Image
 import requests
 from pytube import YouTube
 import datetime
+from concurrent.futures import ThreadPoolExecutor
+from threading import Thread, local
+import asyncio
+import aiohttp
+from aiohttp import ClientSession
+
+lista = []
+thread_local = local()
 
 #Inico a sessão
 def init_sesion():
@@ -17,7 +25,6 @@ def init_sesion():
 def pesquisa(data):
     url = f"https://www.youtube.com/results?search_query={data}"
     return url
-
 
 #Request + Converte para HTML
 def request_pesq(data):
@@ -58,27 +65,25 @@ def get_soup(data):
         except:
             pass
     fim3 = time.time()
-    print("Tempo de request: : {:.2f} segundos".format(fim3 - inicio3))
+    print("SOUP Tempo de request: : {:.2f} segundos".format(fim3 - inicio3))
     return links
 
 
 def fazer_request(link):
     yt = YouTube(link)
     print(yt.title)
-    return {"title": yt.title, "link": link, "duration": str(datetime.timedelta(seconds=yt.length)),
-            "thumb": transform_img(yt.thumbnail_url), "views": yt.views, "canal": yt.author}
-
+    lista.append({"title": yt.title, "link": link, "duration": str(datetime.timedelta(seconds=yt.length)),
+            "thumb": transform_img(yt.thumbnail_url), "views": yt.views, "canal": yt.author})
 
 
 def get_data(data):
     inicio = time.time()
     is_a = what_is(data)
-    list = []
 
     if is_a == "Text":
         links = get_soup(data)
-        for link in links:
-            list.append(fazer_request(link))
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            executor.map(fazer_request, links)
 
     else:
         yt = YouTube(data)
@@ -88,10 +93,10 @@ def get_data(data):
     fim = time.time()
 
     print("------------------------------------------------------------------")
-    print(f"Foram encontados {len(list)} resultados")
+    print(f"Foram encontados {len(lista)} resultados")
     print("Tempo de pesquisa: : {:.2f} segundos".format(fim - inicio))
 
-    return list
+    return lista
 
 def what_is(data):
     if not bool(data.find("https://")):
