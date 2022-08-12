@@ -1,17 +1,20 @@
 import os
-import threading, queue
+from threading import Thread
 import PySimpleGUI as sg
 from modulos import download_audio_video as audio_video
-from modulos import janela_principal, janela_opcoes
-from modulos import search_audio_video
-from modulos.search_audio_video import lista
+from modulos import janela_principal, janela_opcoes, search_audio_video
+from modulos.search_audio_video import pesquisar
+
+
+def baixar_video(data, dir, tipo):
+    Thread(target=audio_video.baixar, args=(data, dir, tipo, )).start()
+
 
 def main():
     #default
     dir = os.getcwd()
     tipo = ".m4a"
-
-
+    data = None
     window = janela_principal.janela_principal() #janela_principal.janela_principal()
 
     colunas_criadas = 30
@@ -23,26 +26,38 @@ def main():
         if event == sg.WINDOW_CLOSED:
             break
 
-        os.system('clear')
+        # os.system('clear')
+
 
         if event == "Search":
-            search_audio_video.lista = []
-            data = search_audio_video.get_data(values[0])
-            tamanho_resultado = len(data)
+            zera_lista_de_links()
+            tamanho_resultado = realiza_busca(values[0])
+            data = search_audio_video.lista
             atualiza_tela(data, window, tamanho_resultado, colunas_criadas)
 
         if event == f"Baixar":
-            threading.Thread(target=audio_video.baixar, args=[data[0]["link"], dir, tipo, ]).start()
+            baixar_video(data[0]["link"], dir, tipo)
+
 
         for index in range(0,tamanho_resultado):
             if event == f"Baixar{index}":
-                threading.Thread(target=audio_video.baixar, args=[data[index+1]["link"], dir, tipo, ]).start()
+                baixar_video(data[index+1]["link"], dir, tipo)
 
         if event == "OPT":
             tipo, dir = janela_opcoes.janela_opcoes()
 
     window.close()
 
+# def apresentar_gif():
+#     sg.PopupAnimated(sg.DEFAULT_BASE64_LOADING_GIF, background_color='white', time_between_frames=100)
+#     sg.PopupAnimated(None)
+def realiza_busca(busca):
+    pesquisar(busca)
+    tamanho_resultado = len(search_audio_video.lista)
+    return tamanho_resultado
+def zera_lista_de_links():
+    search_audio_video.lista = []
+    search_audio_video.links = []
 
 def atualiza_tela(data, window, tamanho_resultado, tamanho_colunas):
     for index in range(0,tamanho_resultado):
@@ -62,6 +77,8 @@ def atualiza_tela(data, window, tamanho_resultado, tamanho_colunas):
         window[f"FRAME-IMG{index}"].update(visible=False)
         window[f"FRAME-TXT{index}"].update(visible=False)
 
+    # for index in range()
+
     window.visibility_changed()
     window[f'COLUMN'].contents_changed()
     window[f'COLUMN'].update(visible=True)
@@ -70,8 +87,6 @@ def atualiza_tela(data, window, tamanho_resultado, tamanho_colunas):
     window['OPT'].update(visible=True)
     window["TITULO"].update(visible=False)
     window['RES'].update(f"RESULTADO: {tamanho_resultado}",visible=True)
-
-
 
 
 if __name__ == "__main__":
