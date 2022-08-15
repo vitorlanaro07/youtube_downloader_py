@@ -36,7 +36,7 @@ def janela_principal():
                 [sg.Column(column_search, vertical_alignment="center", justification="center")],
                 [sg.Text(key="RES", justification='center', background_color='#424f5e', expand_x=True, visible=False)],
                 [sg.Column(layout_img, justification="center", vertical_alignment="center"),[
-                    sg.pin(sg.Column(layout_cre, key=f'COLUMN', visible=False, scrollable=True, vertical_scroll_only=True, size=(1920, 1080), expand_y=True),expand_y=True)]]
+                    sg.Column(layout_cre, key=f'COLUMN', visible=False, scrollable=True, vertical_scroll_only=True, size=(1920, 1080), expand_y=True)]]
             ]
 
     window = sg.Window("Downloader MP3 YOUTUBE", layout, finalize=True, size=(1000, 700), font=(50), resizable=True)

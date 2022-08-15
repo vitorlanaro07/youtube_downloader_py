@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+import os
 
 def janela_opcoes():
 
@@ -16,8 +17,10 @@ def janela_opcoes():
     while True:
         event, values = window.read()
 
-        if event in[sg.WINDOW_CLOSED, "Sair"]:
-            break
+        if event in (sg.WIN_CLOSED, "Sair"):
+            window.close()
+            return ".m4a", os.getcwd()
+
 
         if event == "Ok":
             if values[1] == True:
