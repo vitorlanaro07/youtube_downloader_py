@@ -21,10 +21,9 @@ def main():
         if event == sg.WINDOW_CLOSED:
             break
 
-        # os.system('clear')
+        os.system('clear')
 
         if event == "Search":
-            # Thread(target=buscando, args=("", )).start()
             zera_lista_de_links()
             tamanho_resultado, data = realiza_busca(values[0])
             sg.PopupAnimated(None)
@@ -52,8 +51,8 @@ def atualizar_visibilidade_da_janela(window, endereco, visibilidade):
 def atualizar_dados_da_janela(window, endereco, conteudo):
     window[endereco].update(conteudo)
 
-def buscando(args):
-    sg.PopupAnimated(sg.DEFAULT_BASE64_LOADING_GIF, background_color='white', time_between_frames=100)
+# def buscando(args):
+#     sg.PopupAnimated(sg.DEFAULT_BASE64_LOADING_GIF, background_color='white', time_between_frames=100)
 
 def realiza_busca(busca):
     pesquisar(busca)
